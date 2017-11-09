@@ -16,3 +16,7 @@ export default class App extends Component<{}> {
     );
   }
 }
+
+// Redux
+// react-navigation
+// AsyncStorage / Realm / sqlite

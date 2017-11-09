@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from "react-native";
 import Sound from "react-native-sound";
 
 class ColorButton extends PureComponent {
@@ -11,8 +11,35 @@ class ColorButton extends PureComponent {
           ": ",
           error
         );
-    })
+    }),
+    opacity: new Animated.Value(1)
   };
+
+  componentWillUpdate(props) {
+    props.flashing && this._flash();
+  }
+
+  _flash = () => {
+    this.state.sound.stop(() => this.state.sound.play());
+    Animated.sequence([
+      Animated.timing(this.state.opacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+        easing : Easing.in
+      }),
+      Animated.timing(this.state.opacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true
+      }),
+      Animated.timing(this.state.opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true
+      })
+    ]).start();
+  }
 
   _onPress = () => {
     this.state.sound.stop(() => this.state.sound.play());
@@ -27,12 +54,14 @@ class ColorButton extends PureComponent {
           width: this.props.size,
           height: this.props.size
         }}
+        disabled={this.props.disabled}
         onPress={this._onPress}
       >
-        <View
+        <Animated.View
           style={{
             flex: 1,
             borderRadius: 4,
+            opacity: this.state.opacity,
             backgroundColor: this.props.backgroundColor
           }}
         />

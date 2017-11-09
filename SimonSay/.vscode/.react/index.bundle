@@ -58420,6 +58420,9 @@ exports.default = App;
 __d(/* SimonSay/src/containers/GamePlayScreen.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _jsxFileName = "/Users/AVAVT/Documents/TechKids/rn-demo/SimonSay/src/containers/GamePlayScreen.js";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -58448,6 +58451,11 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var PlayState = {
+  WAITNG: "WAITING",
+  HINTING: "HINTING"
+};
+
 var GamePlayScreen = function (_PureComponent) {
   _inherits(GamePlayScreen, _PureComponent);
 
@@ -58464,9 +58472,11 @@ var GamePlayScreen = function (_PureComponent) {
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = GamePlayScreen.__proto__ || Object.getPrototypeOf(GamePlayScreen)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
       score: 0,
-      input: []
+      input: [],
+      flashingButtonIndex: -1,
+      gameState: PlayState.HINTING
     }, _this.componentDidMount = function () {
-      _reactNativeSound2.default.setCategory('Playback');
+      _reactNativeSound2.default.setCategory("Playback");
       _this._initGame();
     }, _this._initGame = function () {
       _this.setState({
@@ -58480,7 +58490,27 @@ var GamePlayScreen = function (_PureComponent) {
       _this.setState({
         input: _this.state.input.concat((0, _MathUtilities.randomInt)(0, 4)),
         userInput: [],
-        score: _this.state.score + scoreIncrement
+        score: _this.state.score + scoreIncrement,
+        gameState: PlayState.HINTING
+      }, function () {
+        return setTimeout(function () {
+          _this._flashButtons(0);
+        }, 300);
+      });
+    }, _this._flashButtons = function (index) {
+      _this.setState({ flashingButtonIndex: -1 });
+
+      setTimeout(function () {
+        _this.setState({
+          flashingButtonIndex: _this.state.input[index]
+        }, function () {
+          index < _this.state.input.length - 1 ? _this._flashButtons(index + 1) : _this._onHintingCompleted();
+        });
+      }, 500);
+    }, _this._onHintingCompleted = function () {
+      _this.setState({
+        flashingButtonIndex: -1,
+        gameState: PlayState.WAITNG
       });
     }, _this._handleButtonTap = function (id) {
       var _this$state = _this.state,
@@ -58499,6 +58529,15 @@ var GamePlayScreen = function (_PureComponent) {
       return function () {
         return _this._handleButtonTap(id);
       };
+    }, _this._createButtonProps = function (id, color, soundName, size) {
+      return {
+        onPress: _this._createButtonHandler(id),
+        backgroundColor: color,
+        size: size,
+        soundName: soundName,
+        flashing: _this.state.flashingButtonIndex === id,
+        disabled: _this.state.gameState === PlayState.HINTING
+      };
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -58515,7 +58554,7 @@ var GamePlayScreen = function (_PureComponent) {
         _reactNative.View,
         { style: styles.container, __source: {
             fileName: _jsxFileName,
-            lineNumber: 71
+            lineNumber: 112
           }
         },
         _react2.default.createElement(
@@ -58523,7 +58562,7 @@ var GamePlayScreen = function (_PureComponent) {
           {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 72
+              lineNumber: 113
             }
           },
           this.state.input.join(", ")
@@ -58533,7 +58572,7 @@ var GamePlayScreen = function (_PureComponent) {
           {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 73
+              lineNumber: 114
             }
           },
           "Score : ",
@@ -58543,57 +58582,41 @@ var GamePlayScreen = function (_PureComponent) {
           _reactNative.View,
           { style: styles.row, __source: {
               fileName: _jsxFileName,
-              lineNumber: 74
+              lineNumber: 115
             }
           },
-          _react2.default.createElement(_ColorButton2.default, {
-            onPress: this._createButtonHandler(0),
-            backgroundColor: "#D32F2F",
-            size: halfShortSide,
-            soundName: "pling1.mp3",
+          _react2.default.createElement(_ColorButton2.default, _extends({}, this._createButtonProps(0, "#D32F2F", "pling1.mp3", halfShortSide), {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 75
+              lineNumber: 116
             }
-          }),
-          _react2.default.createElement(_ColorButton2.default, {
-            onPress: this._createButtonHandler(1),
-            backgroundColor: "#303F9F",
-            size: halfShortSide,
-            soundName: "pling2.mp3",
+          })),
+          _react2.default.createElement(_ColorButton2.default, _extends({}, this._createButtonProps(1, "#303F9F", "pling2.mp3", halfShortSide), {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 81
+              lineNumber: 119
             }
-          })
+          }))
         ),
         _react2.default.createElement(
           _reactNative.View,
           { style: styles.row, __source: {
               fileName: _jsxFileName,
-              lineNumber: 88
+              lineNumber: 123
             }
           },
-          _react2.default.createElement(_ColorButton2.default, {
-            onPress: this._createButtonHandler(2),
-            backgroundColor: "#388E3C",
-            size: halfShortSide,
-            soundName: "pling3.mp3",
+          _react2.default.createElement(_ColorButton2.default, _extends({}, this._createButtonProps(2, "#388E3C", "pling3.mp3", halfShortSide), {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 89
+              lineNumber: 124
             }
-          }),
-          _react2.default.createElement(_ColorButton2.default, {
-            onPress: this._createButtonHandler(3),
-            backgroundColor: "#7B1FA2",
-            size: halfShortSide,
-            soundName: "pling4.mp3",
+          })),
+          _react2.default.createElement(_ColorButton2.default, _extends({}, this._createButtonProps(3, "#7B1FA2", "pling4.mp3", halfShortSide), {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 95
+              lineNumber: 127
             }
-          })
+          }))
         )
       );
     }
@@ -58878,7 +58901,26 @@ var ColorButton = function (_PureComponent) {
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ColorButton.__proto__ || Object.getPrototypeOf(ColorButton)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
       sound: new _reactNativeSound2.default(_this.props.soundName, _reactNativeSound2.default.MAIN_BUNDLE, function (error) {
         error && console.log("failed to load the sound", _this.props.soundName, ": ", error);
-      })
+      }),
+      opacity: new _reactNative.Animated.Value(1)
+    }, _this._flash = function () {
+      _this.state.sound.stop(function () {
+        return _this.state.sound.play();
+      });
+      _reactNative.Animated.sequence([_reactNative.Animated.timing(_this.state.opacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+        easing: _reactNative.Easing.in
+      }), _reactNative.Animated.timing(_this.state.opacity, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true
+      }), _reactNative.Animated.timing(_this.state.opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true
+      })]).start();
     }, _this._onPress = function () {
       _this.state.sound.stop(function () {
         return _this.state.sound.play();
@@ -58888,6 +58930,11 @@ var ColorButton = function (_PureComponent) {
   }
 
   _createClass(ColorButton, [{
+    key: "componentWillUpdate",
+    value: function componentWillUpdate(props) {
+      props.flashing && this._flash();
+    }
+  }, {
     key: "render",
     value: function render() {
       return _react2.default.createElement(
@@ -58898,21 +58945,23 @@ var ColorButton = function (_PureComponent) {
             width: this.props.size,
             height: this.props.size
           },
+          disabled: this.props.disabled,
           onPress: this._onPress,
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 24
+            lineNumber: 51
           }
         },
-        _react2.default.createElement(_reactNative.View, {
+        _react2.default.createElement(_reactNative.Animated.View, {
           style: {
             flex: 1,
             borderRadius: 4,
+            opacity: this.state.opacity,
             backgroundColor: this.props.backgroundColor
           },
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 32
+            lineNumber: 60
           }
         })
       );
