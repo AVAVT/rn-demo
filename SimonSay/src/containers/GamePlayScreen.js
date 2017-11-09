@@ -4,57 +4,63 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Dimensions
 } from "react-native";
+import Sound from 'react-native-sound';
 
-// const AnotherText = (props) => ( <Text>{props.children}</Text>)
-const ColorButton = props => (
-  <TouchableOpacity
-    style={{
-      padding: 10,
-      width: props.size,
-      height: props.size
-    }}
-    onPress={props.onPress}
-  >
-    <View
-      style={{
-        flex: 1,
-        borderRadius: 4,
-        backgroundColor: props.backgroundColor
-      }}
-    />
-  </TouchableOpacity>
-);
+import { randomInt } from "../utilities/MathUtilities";
+import ColorButton from '../components/ColorButton';
 
 // create a component
 class GamePlayScreen extends PureComponent {
   state = {
-    score : 0,
-    input : []
-  }
+    score: 0,
+    input: []
+  };
 
   componentDidMount = () => {
-    this.setState({
-      input : [1,2,0]
-    })
+    Sound.setCategory('Playback');
+    this._initGame();
+  };
 
-    // this.state.input.concat( [3] ) => [1,2,0,3]
-  }
+  _initGame = () => {
+    this.setState(
+      {
+        input: [],
+        userInput: [],
+        score: 0
+      },
+      this._next
+    );
+  };
+
+  _next = (scoreIncrement = 0) => {
+    this.setState({
+      input: this.state.input.concat(randomInt(0, 4)),
+      userInput: [],
+      score : this.state.score + scoreIncrement
+    });
+  };
 
   _handleButtonTap = id => {
-    this.setState({
-      score : this.state.score + 1
-    });
+    const { input, userInput } = this.state;
 
-    // Object.assign({}, this.state, {
-    //   score : this.state.score + 1
-    // });
-    // this.state.score += 1; DONT DO THIS
+    input[userInput.length] === id
+      ? this._onInputCorrect(id)
+      : this._initGame();
   };
-  
-  // currying
+
+  _onInputCorrect = id => {
+    this.setState(
+      {
+        userInput: this.state.userInput.concat(id)
+      },
+      () => {
+        this.state.userInput.length === this.state.input.length && this._next(1);
+      }
+    );
+  };
+
   _createButtonHandler = id => () => this._handleButtonTap(id);
 
   render() {
@@ -63,18 +69,20 @@ class GamePlayScreen extends PureComponent {
 
     return (
       <View style={styles.container}>
-        <Text>{this.state.input.join(', ')}</Text>
+        <Text>{this.state.input.join(", ")}</Text>
         <Text>Score : {this.state.score}</Text>
         <View style={styles.row}>
           <ColorButton
             onPress={this._createButtonHandler(0)}
             backgroundColor="#D32F2F"
             size={halfShortSide}
+            soundName="pling1.mp3"
           />
           <ColorButton
             onPress={this._createButtonHandler(1)}
             backgroundColor="#303F9F"
             size={halfShortSide}
+            soundName="pling2.mp3"
           />
         </View>
         <View style={styles.row}>
@@ -82,11 +90,13 @@ class GamePlayScreen extends PureComponent {
             onPress={this._createButtonHandler(2)}
             backgroundColor="#388E3C"
             size={halfShortSide}
+            soundName="pling3.mp3"
           />
           <ColorButton
             onPress={this._createButtonHandler(3)}
             backgroundColor="#7B1FA2"
             size={halfShortSide}
+            soundName="pling4.mp3"
           />
         </View>
       </View>
